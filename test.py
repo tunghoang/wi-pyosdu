@@ -25,6 +25,9 @@ def basic_test():
   print(get_kinds())
   print(get_record('osdu:wks:master-data--Well:HT-1P'))
 
+def get_kinds_test():
+  print(json.dumps(get_kinds()))
+
 def basin_construction_test():
   # BASIN CONSTRUCTION TESTS
   basin = Basin('HaiThach', 'HT', r"Mỏ Hải Thạch")
@@ -84,8 +87,10 @@ def seistore_basic_test():
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--basic_test', action="store_true")
+parser.add_argument('--get_kinds_test', action="store_true")
 parser.add_argument('--get_record')
 parser.add_argument('--delete_record')
+parser.add_argument('--put_org_test', action="store_true")
 parser.add_argument('--put_well_test', action="store_true")
 parser.add_argument('--put_basin_test', action="store_true")
 parser.add_argument('--put_wellbore_test', action="store_true")
@@ -95,11 +100,15 @@ parser.add_argument("--seistore_basic_test", action="store_true")
 args = parser.parse_args()
 if args.basic_test:
   basic_test()
+elif args.get_kinds_test:
+  get_kinds_test()
 elif args.get_record:
   record = get_record(args.get_record)
   print(json.dumps(record))
 elif args.delete_record:
   print(delete_record(args.delete_record))
+elif args.put_org_test:
+  print(put_org_test())
 elif args.put_basin_test:
   put_basin_test()
 elif args.put_well_test:
