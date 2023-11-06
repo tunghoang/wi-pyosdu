@@ -1,0 +1,8 @@
+AUTH_URL=http://keycloak.osdu.local
+TOKEN_FETCH_URL=f'{AUTH_URL}/realms/osdu/protocol/openid-connect/token'
+OSDU_BASE=http://osdu.osdu.local
+CLIENT_ID=demo
+CLIENT_SECRET=tORhdelFWKUncsT0bNbznCwwy0UQVjod
+USERNAME=demo@osdu.local
+PASSWORD=123456
+PARTITION_ID=osdu
