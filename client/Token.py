@@ -15,6 +15,16 @@ def __login(username, password):
   OSDUSession.access_token = content['access_token']
   OSDUSession.set_refresh_token(content['refresh_token'])
 
+def __admin_login():
+  resp = httpPostForm(TOKEN_FETCH_URL, data={
+    "grant_type": "client_credentials",
+    "scope": "openid profile email",
+    "client_id": ADMIN_CLIENT_ID,
+    "client_secret": ADMIN_CLIENT_SECRET
+  })
+  content = json.loads(resp.content)
+  OSDUSession.set_admin_token(content['access_token'])
+
 def __renew_access_token(refresh_token):
   resp = httpPostForm(TOKEN_FETCH_URL, data={
     "grant_type": "refresh_token",
@@ -38,6 +48,13 @@ def access_token():
       __renew_access_token(refresh_token)
   return OSDUSession.access_token
 
+def admin_token():
+  if OSDUSession.admin_token is None:
+    admin_token = OSDUSession.get_admin_token()
+    if admin_token is None:
+      __admin_login()
+  return OSDUSession.admin_token
+
 def refresh_token():
   if OSDUSession.refresh_token is None:
     __login(USERNAME, PASSWORD)
@@ -47,4 +64,10 @@ def auth_headers():
   return {
     'data-partition-id': PARTITION_ID,
     'Authorization': f'Bearer {access_token()}'
+  }
+
+def auth_admin_headers():
+  return {
+    'data-partition-id': PARTITION_ID,
+    'Authorization': f'Bearer {admin_token()}'
   }

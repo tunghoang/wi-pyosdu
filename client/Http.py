@@ -11,3 +11,9 @@ def httpPostJson(url, json=None, headers=None):
 
 def httpPutJson(url, json=None, headers=None):
     return requests.put(url, json=json, headers=headers)
+
+def httpPutFile(url, local_file_path):
+    return requests.put(url, data=open(local_file_path, 'rb'))
+
+def httpDelete(url, headers=None):
+    return requests.delete(url, headers=headers)

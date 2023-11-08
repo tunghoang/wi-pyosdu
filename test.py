@@ -3,11 +3,15 @@ import json
 from os import environ
 from config import *
 from client.Http import *
+
 from client.Token import access_token
-from client.Storage import get_kinds, get_record_versions, get_record, put_record, delete_record
+from client.Storage import get_kinds, get_record_versions, get_record, put_record, delete_record, storage_put_file, storage_query_records
 from client.SeiStore import *
 from client import get_legals
 from client.WBD import *
+from client.File import *
+from client.Dataset import *
+
 from models.Basin import Basin
 from models.Well import Well
 from models.Wellbore import Wellbore
@@ -97,6 +101,13 @@ parser.add_argument('--put_wellbore_test', action="store_true")
 parser.add_argument("--wellbore_test", action="store_true")
 parser.add_argument('--wellbore_ddms_welllogs_data')
 parser.add_argument("--seistore_basic_test", action="store_true")
+parser.add_argument("--file_get_file_signed_url")
+parser.add_argument("--file_ingest_file")
+parser.add_argument("--dataset_list_test", action="store_true")
+parser.add_argument("--dataset_upload_file")
+parser.add_argument("--storage_put_file")
+parser.add_argument("--storage_query_records")
+
 args = parser.parse_args()
 if args.basic_test:
   basic_test()
@@ -121,6 +132,19 @@ elif args.wellbore_ddms_welllogs_data:
   print(wellbore_ddms_welllogs_data(args.wellbore_ddms_welllogs_data))
 elif args.seistore_basic_test:
   seistore_basic_test()
+elif args.file_get_file_signed_url:
+  print(file_get_file_signed_url(args.file_get_file_signed_url))
+elif args.file_ingest_file:
+  file_ingest_file(args.file_ingest_file)
+elif args.dataset_list_test:
+  dataset_list()
+elif args.dataset_upload_file:
+  dataset_upload_file(args.dataset_upload_file)
+elif args.storage_put_file:
+  storage_put_file(args.storage_put_file, 'samplefile')
+elif args.storage_query_records:
+  kind = args.storage_query_records
+  storage_query_records(kind)
 
 #delete_record_test()
 #basic_test()
