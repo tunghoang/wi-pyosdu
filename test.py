@@ -41,7 +41,7 @@ def basin_construction_test():
   return basin
 
 def well_construction_test():
-  well = Well("HT-1P", "HT_1P", "Hải Thạch 1P", basinId="HaiThach")
+  well = Well("HT-2P", "HT_2P", "Hải Thạch 2P", basinId="HaiThach")
   print(well.todict())
   return well
 
