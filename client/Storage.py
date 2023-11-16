@@ -7,9 +7,13 @@ from models.FileGeneric import FileGeneric
 import json
 
 __STORAGE_BASE_URL = f'{OSDU_BASE}/api/storage/v2'
+def storage_info():
+  resp = httpGet(f'{__STORAGE_BASE_URL}/info', headers=auth_headers())
+  data = json.loads(resp.content)
+  return data
 def get_kinds():
   resp = httpGet(f'{__STORAGE_BASE_URL}/query/kinds', headers=auth_headers())
-  return json.loads(resp.content)['results']
+  return json.loads(resp.content)
 
 def get_record_versions(record_id):
   resp = httpGet(f'{__STORAGE_BASE_URL}/records/versions/{record_id}', headers=auth_headers())
@@ -19,11 +23,25 @@ def get_record(record_id):
   resp = httpGet(f'{__STORAGE_BASE_URL}/records/{record_id}', headers=auth_headers())
   return json.loads(resp.content)
 
+def storage_get_record(record_id):
+  resp = httpGet(f'{__STORAGE_BASE_URL}/records/{record_id}', headers=auth_headers())
+  return json.loads(resp.content)
+
 def put_record(record: Record):
   resp = httpPutJson(f'{__STORAGE_BASE_URL}/records', json=[record.todict()], headers=auth_headers())
   return json.loads(resp.content)
 
+def storage_put_record(record: Record):
+  resp = httpPutJson(f'{__STORAGE_BASE_URL}/records', json=[record.todict()], headers=auth_headers())
+  return json.loads(resp.content)
+
 def delete_record(record_id:str):
+  resp = httpPostJson(f'{__STORAGE_BASE_URL}/records/delete', json=[record_id], headers=auth_headers())
+  #resp = httpPostJson(f'{__STORAGE_BASE_URL}/records/delete', json=[record_id], headers=auth_admin_headers())
+  print(resp.content)
+  return resp.status_code
+
+def storage_delete_record(record_id:str):
   resp = httpPostJson(f'{__STORAGE_BASE_URL}/records/delete', json=[record_id], headers=auth_headers())
   #resp = httpPostJson(f'{__STORAGE_BASE_URL}/records/delete', json=[record_id], headers=auth_admin_headers())
   print(resp.content)

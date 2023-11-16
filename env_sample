@@ -6,3 +6,5 @@ CLIENT_SECRET=tORhdelFWKUncsT0bNbznCwwy0UQVjod
 USERNAME=demo@osdu.local
 PASSWORD=123456
 PARTITION_ID=osdu
+OAUTH_BASE_URL=http://keycloak.osdu.local/realms/osdu/protocol/openid-connect/auth
+AUTH_METHOD=OIDC_LOGIN

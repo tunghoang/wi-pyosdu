@@ -12,11 +12,16 @@ USERNAME = environ.get("USERNAME")
 PASSWORD = environ.get("PASSWORD")
 PARTITION_ID = environ.get("PARTITION_ID")
 
+OAUTH_BASE_URL = f'{environ.get("AUTH_URL")}/realms/osdu/protocol/openid-connect/auth'
+AUTH_METHOD = environ.get("AUTH_METHOD")
 class __Session:
   access_token = None
   refresh_token = None
 
   admin_token = None
+
+  state = None
+  code = None
 
   def set_refresh_token(self, rtoken):
     self.refresh_token = rtoken
@@ -31,6 +36,19 @@ class __Session:
       except:
         return None
     return self.refresh_token
+
+  def set_oauth_token(self, otoken):
+    self.access_token = otoken
+    with open('.oauth_token', 'w') as f:
+      f.write(otoken)
+  def get_oauth_token(self):
+    if self.access_token is None:
+      try:
+        with open('.oauth_token', 'r') as f:
+          self.access_token = f.read()
+      except:
+        return None
+    return self.access_token
 
   def set_admin_token(self, atoken):
     self.admin_token = atoken
