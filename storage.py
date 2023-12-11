@@ -16,6 +16,9 @@ parser.add_argument('--record_id')
 
 parser.add_argument('--delete', action="store_true")
 
+# put json file
+parser.add_argument('--put', action="store_true")
+parser.add_argument('--path')
 args = parser.parse_args()
 
 if args.info:
@@ -26,3 +29,6 @@ elif args.query and args.record_id:
   print(json.dumps(storage_get_record(args.record_id)))
 elif args.delete and args.record_id:
   print(json.dumps(storage_delete_record(args.record_id)))
+elif args.put and args.path:
+  with open(args.path, 'r') as f:
+    print(storage_put_json(f))

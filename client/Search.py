@@ -8,12 +8,20 @@ def search_info():
   resp = httpGet(f'{__SEARCH_BASE_URL}/info', headers=auth_headers())
   print(resp.content.decode('utf-8'))
 
-def search_kind(kind):
+def search_kind(kind, returnedFields=None, limit=1000):
   resp = httpPostJson(f'{__SEARCH_BASE_URL}/query', json={
-    'kind': kind
+    'kind': kind,
+    'returnedFields': returnedFields,
+    'limit': limit
   },headers=auth_headers())
   print(resp.content.decode('utf-8'))
 
-def search_query(text):
-  resp = httpPostJson(f'{__SEARCH_BASE_URL}/query', json={'query': text}, headers=auth_headers())
-  print(resp.content)
+def search_query(kind, text, returnedFields=None, limit=1000):
+  payload = {
+    'kind': kind,
+    'query': text,
+    'returnedFields': returnedFields,
+    'limit': limit
+  }
+  resp = httpPostJson(f'{__SEARCH_BASE_URL}/query', json=payload, headers=auth_headers())
+  return json.loads(resp.content)

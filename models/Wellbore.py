@@ -7,7 +7,7 @@ class Wellbore(Record):
       id=f"{OSDU_ID_PREFIXES['Wellbore']}:{wellboreId}", 
       data = {
         "FacilityName": wellboreId, 
-        "FacilityId": wellboreId,
+        "FacilityID": wellboreId,
         "FacilityDescription": description
       }
   )

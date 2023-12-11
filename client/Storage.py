@@ -35,6 +35,13 @@ def storage_put_record(record: Record):
   resp = httpPutJson(f'{__STORAGE_BASE_URL}/records', json=[record.todict()], headers=auth_headers())
   return json.loads(resp.content)
 
+def storage_put_json(jsonFile):
+  payload = json.load(jsonFile)
+  if type(payload) != list:
+    payload = [payload]
+  resp = httpPutJson(f'{__STORAGE_BASE_URL}/records', json=payload, headers=auth_headers())
+  return json.loads(resp.content)
+
 def delete_record(record_id:str):
   resp = httpPostJson(f'{__STORAGE_BASE_URL}/records/delete', json=[record_id], headers=auth_headers())
   #resp = httpPostJson(f'{__STORAGE_BASE_URL}/records/delete', json=[record_id], headers=auth_admin_headers())
