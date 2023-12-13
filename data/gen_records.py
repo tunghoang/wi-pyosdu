@@ -1,13 +1,12 @@
 import pandas as pd
-import json, copy, yaml, os
+import json, copy, yaml, os, math
 
 
 INPUT_FILE = 'input.xlsx'
 SHEETS = ('Organisation', 'Basin', 'Field')
 #SHEETS = ('Organisation', )
 
-dirname = os.path.dirname(__file__)
-
+dirname = os.path.dirname(__file__) or '.'
 _RECORD_MAPPINGS = yaml.safe_load(open(dirname + '/record_mappings.yaml'))
 
 MAPPINGS = {
@@ -57,7 +56,7 @@ def eval_mapping_entry(source, mapping_ent):
   if fn is not None:
     return eval(fn)(*params)
 
-  raise Error('No or Invalid mapping')
+  raise Exception(f'No or Invalid mapping {source} - {mapping_ent}')
   
 def eval_mapping(source, mappings, key):
   mapping_ent = mappings[key]
@@ -81,6 +80,9 @@ def do_gen(record_type, df):
   records = []
   for row in table:
     #record = copy.deepcopy(_RECORD)
+    if math.isnan(row['STT']):
+      print(f"skipped {row}")
+      continue
     record = {}
     apply_mappings(None, record, _RECORD_MAPPINGS)
     apply_mappings(row, record, mappings)
@@ -88,7 +90,7 @@ def do_gen(record_type, df):
   with open(f'{record_type}.json', 'w') as f:
     f.write(json.dumps(records))
 
-xlsx = pd.ExcelFile(INPUT_FILE)
+xlsx = pd.ExcelFile(INPUT_FILE, engine='openpyxl')
 
 dfs = {sheet_name: xlsx.parse(sheet_name) for sheet_name in SHEETS }
 
