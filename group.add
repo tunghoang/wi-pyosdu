@@ -1,0 +1,5 @@
+users.datalake.admins@osdu.group
+data.default.owners@osdu.group
+data.default.viewers@osdu.group
+users.datalake.viewers@osdu.group
+users@osdu.group
