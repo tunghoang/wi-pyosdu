@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=48.0"]
+
+[project]
+name = "wi_pyosdu"
+version = "1.0.0"
+authors = [{ name = "Tung HOANG", email = "tung.hoang@gmail.com" }]
+description = "Well Insight Python OSDU Access"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = []
