@@ -55,8 +55,8 @@ def storage_delete_record(record_id:str):
   return resp.status_code
 
 def storage_query_records(kind):
-  #resp = httpGet(f'{__STORAGE_BASE_URL}/query/records?kind={kind}', headers=auth_headers())
-  resp = httpGet(f'{__STORAGE_BASE_URL}/query/records?kind={kind}', headers=auth_admin_headers())
+  resp = httpGet(f'{__STORAGE_BASE_URL}/query/records?kind={kind}', headers=auth_headers())
+  #resp = httpGet(f'{__STORAGE_BASE_URL}/query/records?kind={kind}', headers=auth_admin_headers())
   print(resp.content)
 
 def storage_put_file(local_file_path, filename):

@@ -13,6 +13,7 @@ parser.add_argument('--get_kinds', action="store_true")
 
 parser.add_argument('--query', action="store_true")
 parser.add_argument('--record_id')
+parser.add_argument('--kind')
 
 parser.add_argument('--delete', action="store_true")
 
@@ -27,6 +28,8 @@ elif args.get_kinds:
   print(json.dumps(get_kinds()))
 elif args.query and args.record_id:
   print(json.dumps(storage_get_record(args.record_id)))
+elif args.query and args.kind:
+  print(json.dumps(storage_query_records(args.kind)))
 elif args.delete and args.record_id:
   print(json.dumps(storage_delete_record(args.record_id)))
 elif args.put and args.path:

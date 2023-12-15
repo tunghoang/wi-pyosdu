@@ -129,7 +129,7 @@ class LasParser:
         :return: A LASFile object.
         """
 
-        las = lasio.read(self._file_loader.load(path))
+        las = lasio.read(self._file_loader.load(path), engine='normal')
 
         try:
             self.validate_las_file(las)

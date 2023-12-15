@@ -59,8 +59,8 @@ class WellboreMappingFunctions:
         self._wellbore_id = f"{wellbore_id}" if wellbore_id else None
 
     def build_wellbore_id(self, uwi, data_partition_id):
-        wb_id = self._wellbore_id or uwi
-        return f'{data_partition_id}:master-data--Wellbore:{wb_id}'
+        wb_id = self._wellbore_id or f'{data_partition_id}:master-data--Wellbore:{uwi}'
+        return wb_id
 
     def build_wellbore_name_aliases(self, uwi: str, data_partition_id: str) -> List[Dict[str, str]]:
         """
