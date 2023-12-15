@@ -55,6 +55,13 @@ class WellLogRecord(Record):
 
 
 class WellboreMappingFunctions:
+    def __init__(self, wellbore_id: str) -> None:
+        self._wellbore_id = f"{wellbore_id}" if wellbore_id else None
+
+    def build_wellbore_id(self, uwi, data_partition_id):
+        wb_id = self._wellbore_id or uwi
+        return f'{data_partition_id}:master-data--Wellbore:{wb_id}'
+
     def build_wellbore_name_aliases(self, uwi: str, data_partition_id: str) -> List[Dict[str, str]]:
         """
         Map UWI and the data_partition_id to the wellbore name alias data type.
@@ -79,11 +86,15 @@ class WellboreMappingFunctions:
 
 
 class WellLogMappingFunctions:
-    def __init__(self, wellbore_id: str) -> None:
+    def __init__(self, wellbore_id: str, welllog_id) -> None:
         self._wellbore_id = f"{wellbore_id}:"
+        self._welllog_id = f"{welllog_id}" if welllog_id else None
 
     def get_wellbore_id(self):
         return self._wellbore_id
+
+    def get_welllog_id(self):
+        return self._welllog_id
 
     def las2osdu_curve_uom_converter(self, unit: str, data_partition_id: str) -> str:
         unit_local = urllib.parse.quote(unit, safe="").replace(" ", "-")
@@ -104,6 +115,11 @@ class LasToRecordMapper:
     _DEFAULT_WELLBORE_MAPPING = {
         "kind": "osdu:wks:master-data--Wellbore:1.0.0",
         "mapping": {
+            "id": {
+                "type": "function",
+                "function": "build_wellbore_id",
+                "args": ["well.UWI.value", "CONFIGURATION.data_partition_id"]
+            },
             "acl.viewers": "CONFIGURATION.data.default.viewers",
             "acl.owners": "CONFIGURATION.data.default.owners",
             "legal.legaltags": "CONFIGURATION.legal.legaltags",
@@ -122,6 +138,11 @@ class LasToRecordMapper:
         "kind": "osdu:wks:work-product-component--WellLog:1.1.0",
         "mapping":
         {
+            "id": {
+              "type": "function",
+              "function": "get_welllog_id",
+              "args": []
+            },
             "acl.viewers": "CONFIGURATION.data.default.viewers",
             "acl.owners": "CONFIGURATION.data.default.owners",
             "legal.legaltags": "CONFIGURATION.legal.legaltags",
@@ -162,7 +183,7 @@ class LasToRecordMapper:
         self.config = configuration
         self.las = las
 
-    def map_to_wellbore_record(self) -> Record:
+    def map_to_wellbore_record(self, wellbore_id=None) -> Record:
         """
         Map the LAS data object to a Wellbore record.
 
@@ -172,23 +193,15 @@ class LasToRecordMapper:
         mapper = PropertyMapper(
             DictionaryMappingLoader(self.config.wellbore_mapping or self._DEFAULT_WELLBORE_MAPPING),
             self.config,
-            WellboreMappingFunctions())
+            WellboreMappingFunctions(wellbore_id))
 
         return Record(mapper.remap_data_with_kind(self.las))
 
-    def map_to_well_log_record(self, wellbore_id: str) -> Record:
-        """
-        Map the LAS data object to a Well Log record.
-
-        :param wellbore_id str: The wellbore_id object, often returned by OSDU.
-        :returns: A Well Log record object that can be uploaded to OSDU as JSON payload.
-        :rtype: Record
-        """
-
+    def map_to_well_log_record(self, wellbore_id: str, welllog_id: str) -> Record:
         mapper = PropertyMapper(
             DictionaryMappingLoader(self.config.welllog_mapping or self._DEFAULT_WELLLOG_MAPPING),
             self.config,
-            WellLogMappingFunctions(wellbore_id))
+            WellLogMappingFunctions(wellbore_id, welllog_id))
 
         return Record(mapper.remap_data_with_kind(self.las))
 
