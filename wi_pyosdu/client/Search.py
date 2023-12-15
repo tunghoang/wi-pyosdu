@@ -1,4 +1,4 @@
-from .Token import access_token, auth_headers
+from .Token import access_token, auth_headers, auth_admin_headers
 from ..config import *
 from .Http import *
 import json
@@ -9,11 +9,13 @@ def search_info():
   print(resp.content.decode('utf-8'))
 
 def search_kind(kind, returnedFields=None, limit=1000):
+  #headers = auth_admin_headers()
+  headers = auth_headers()
   resp = httpPostJson(f'{__SEARCH_BASE_URL}/query', json={
     'kind': kind,
     'returnedFields': returnedFields,
     'limit': limit
-  },headers=auth_headers())
+  },headers=headers)
   print(resp.content.decode('utf-8'))
 
 def search_query(kind, text, returnedFields=None, limit=1000):
