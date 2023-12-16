@@ -149,7 +149,7 @@ elif args.ingest and args.path:
         well = re.sub(r"\s+", "-", well)
         dataset = re.sub(r"\s+", "-", dataset)
         wellbore_id = __get_wellbore_id(well)
-        welllog_id = __get_welllog_id(f"{well}.{dataset}"
+        welllog_id = __get_welllog_id(f"{well}.{dataset}")
         ingest(args.path, wellbore_id=wellbore_id, welllog_id=welllog_id)
 
 elif args.get:
