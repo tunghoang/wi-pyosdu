@@ -1,0 +1,18 @@
+{
+    "base_url": "http://osdu.osdu.pvn.vn",
+    "data_partition_id": "osdu",
+    "legal":
+    {
+        "legaltags": ["osdu-pvn-legal"],
+        "otherRelevantDataCountries": ["US"],
+        "status": "compliant"
+    },
+    "data": {
+        "default": {
+            "viewers": [ "data.default.viewers@osdu.group" ],
+            "owners": [ "data.default.owners@osdu.group" ]
+        }
+    },
+    "wellbore_mapping": {},
+    "welllog_mapping": {}
+}
