@@ -61,3 +61,22 @@ def file_get_file_signed_url(srn):
   }, headers = auth_headers())
   return json.loads(resp.content)
 
+def file_get_file(file_record_id):
+  resp = httpGet(f'{__FILE_BASE_URL}/files/{file_record_id}/metadata', headers=auth_headers())
+  resJson = resp.json()
+  return resJson['data']['DatasetProperties']['FileSourceInfo']
+
+def file_get_downloadURL(file_record_id):
+  resp = httpGet(f'{__FILE_BASE_URL}/files/{file_record_id}/downloadURL', headers=auth_headers())
+  return resp.json()
+
+def file_download(url, outputFileName):
+    # NOTE the stream=True parameter below
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(outputFileName, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192): 
+                # If you have chunk encoded response uncomment if
+                # and set chunk_size parameter to None.
+                #if chunk: 
+                f.write(chunk)
