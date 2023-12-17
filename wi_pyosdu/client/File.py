@@ -47,11 +47,11 @@ def file_delete_record(file_record_id):
 
 def file_get_file_list():
   resp = httpPostJson(f'{__FILE_BASE_URL}/getFileList', json = {
-    "TimeFrom": "2022-01-10T00:00:00.000Z",
-    "TimeTo": "2023-12-01T00:00:00.000Z",
+    "TimeFrom": "2023-01-10T00:00:00.000Z",
+    "TimeTo": "2024-12-01T00:00:00.000Z",
     "PageNum": 0,
     "Items": 100,
-    "UserID": "demo@osdu.local"
+    "UserID": "app@pvn.vn"
   }, headers=auth_headers())
   return json.loads(resp.content)
 
