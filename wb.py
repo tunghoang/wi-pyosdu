@@ -27,8 +27,9 @@ parser.add_argument('--well')
 parser.add_argument('--dataset')
 parser.add_argument('--path')
 parser.add_argument('--get', action="store_true")
-parser.add_argument('--list_datasets', action="store_true")
 parser.add_argument('--list_wells', action="store_true")
+parser.add_argument('--list_datasets', action="store_true")
+parser.add_argument('--list_curves', action="store_true")
 parser.add_argument('--delete', action='store_true')
 args = parser.parse_args()
 
@@ -42,19 +43,44 @@ client = OsduClient(config, token)
 wlSvc = WellLogService(client)
 wbSvc = WellBoreService(client, wlSvc)
 
-def __prettyTable(alist):
+def flatten_data(y):
+    out = {}
+
+    def flatten(x, name=''):
+        if type(x) is dict:
+            for a in x:
+                flatten(x[a], name + a + '.')
+        elif type(x) is list:
+            i = 0
+            for a in x:
+                flatten(a, name + str(i) + '.')
+                i += 1
+        else:
+            out[name[:-1]] = x
+
+    flatten(y)
+    return out
+
+def __prettyTable(alist, filteredFields=None):
     table = PrettyTable()
-    table.field_names = alist[0].keys()
+    if filteredFields:
+        table.field_names = list(filter(lambda x: x in filteredFields, flatten_data(alist[0]).keys()))
+    else:
+        table.field_names = flatten_data(alist[0]).keys()
     for row in alist:
-        table.add_row([v for _,v in row.items()])
+        frow = flatten_data(row)
+        if filteredFields:
+            items = list(filter(lambda item: item[0] in filteredFields, frow.items()))
+            table.add_row([v for _,v in items])
+        else:
+            table.add_row([v for _,v in frow.items()])
     print(table)
 
-def __printJson(data):
+def __printJson(data, filteredFields=None):
     print(json.dumps(data))
 
-def __format(data, outputFn=__prettyTable):
-    print(data)
-    return outputFn(data)
+def __format(data, outputFn=__prettyTable, filteredFields=[]):
+    outputFn(data, filteredFields)
 
 def __get_wellbore_id(well):
     return f"osdu:master-data--Wellbore:{well}" if well else None
@@ -146,7 +172,14 @@ def wbd_get_welllog(welllog_id):
 
 def wbd_list_welllogs_of_wellbore(wellbore_id):
     result = search_query('osdu:wks:work-product-component--WellLog:*', f'data.WellboreID: "{wellbore_id}:"', returnedFields=['id'])
-    __format(result['results'], outputFn=__prettyTable)
+    __format(result['results'])
+
+def wbd_list_curves_of_welllog(welllog_id):
+    result = search_query('osdu:wks:work-product-component--WellLog:*', f'id: "{welllog_id}"', returnedFields=['data.Curves'])
+    if result['totalCount'] > 0:
+        __format(result['results'][0]['data']['Curves'], filteredFields=['CurveID', 'LogCurveFamilyID', 'CurveUnit'])
+    else:
+        print("No curves exist")
 
 if args.print and args.path:
     logger.info(f"LAS path: {args.path}")
@@ -175,8 +208,10 @@ elif args.get:
     elif args.dataset:
         print(json.dumps(wbd_get_welllog(__get_welllog_id(args.dataset))))
 elif args.list_wells:
-    __format(search_kind("osdu:wks:master-data--Wellbore:*", returnedFields=['id', 'data.FacilityName'])['results'], outputFn=__printJson)
+    __format(search_kind("osdu:wks:master-data--Wellbore:*", returnedFields=['id', 'data.FacilityName'])['results'])
 elif args.list_datasets and args.well:
     wbd_list_welllogs_of_wellbore(__get_wellbore_id(args.well))
+elif args.list_curves and args.dataset:
+    wbd_list_curves_of_welllog(__get_welllog_id(args.dataset))
 elif args.delete and args.dataset:
     wbd_delete_welllog(__get_welllog_id(args.dataset))
