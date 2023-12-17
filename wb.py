@@ -13,6 +13,8 @@ from wi_pyosdu.client.Token import access_token
 from wi_pyosdu.client.Search import *
 from wi_pyosdu.client.WBD import *
 
+from prettytable import PrettyTable
+
 import json
 import re
 import argparse
@@ -26,6 +28,7 @@ parser.add_argument('--dataset')
 parser.add_argument('--path')
 parser.add_argument('--get', action="store_true")
 parser.add_argument('--list_datasets', action="store_true")
+parser.add_argument('--list_wells', action="store_true")
 parser.add_argument('--delete', action='store_true')
 args = parser.parse_args()
 
@@ -38,6 +41,20 @@ config = Configuration(LocalFileLoader(), config_path)
 client = OsduClient(config, token)
 wlSvc = WellLogService(client)
 wbSvc = WellBoreService(client, wlSvc)
+
+def __prettyTable(alist):
+    table = PrettyTable()
+    table.field_names = alist[0].keys()
+    for row in alist:
+        table.add_row([v for _,v in row.items()])
+    print(table)
+
+def __printJson(data):
+    print(json.dumps(data))
+
+def __format(data, outputFn=__prettyTable):
+    print(data)
+    return outputFn(data)
 
 def __get_wellbore_id(well):
     return f"osdu:master-data--Wellbore:{well}" if well else None
@@ -129,7 +146,7 @@ def wbd_get_welllog(welllog_id):
 
 def wbd_list_welllogs_of_wellbore(wellbore_id):
     result = search_query('osdu:wks:work-product-component--WellLog:*', f'data.WellboreID: "{wellbore_id}:"', returnedFields=['id'])
-    print(result)
+    __format(result['results'], outputFn=__prettyTable)
 
 if args.print and args.path:
     logger.info(f"LAS path: {args.path}")
@@ -157,6 +174,8 @@ elif args.get:
         print(json.dumps(wbd_get_wellbore(__get_wellbore_id(args.well))))
     elif args.dataset:
         print(json.dumps(wbd_get_welllog(__get_welllog_id(args.dataset))))
+elif args.list_wells:
+    __format(search_kind("osdu:wks:master-data--Wellbore:*", returnedFields=['id', 'data.FacilityName'])['results'], outputFn=__printJson)
 elif args.list_datasets and args.well:
     wbd_list_welllogs_of_wellbore(__get_wellbore_id(args.well))
 elif args.delete and args.dataset:

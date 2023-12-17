@@ -17,6 +17,7 @@ def search_kind(kind, returnedFields=None, limit=1000):
     'limit': limit
   },headers=headers)
   print(resp.content.decode('utf-8'))
+  return resp.json()
 
 def search_query(kind, text, returnedFields=None, limit=1000):
   payload = {
