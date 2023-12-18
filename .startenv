@@ -1,0 +1,22 @@
+alias list-datasets="python wb.py --list_datasets"
+alias list-wells="python wb.py --list_wells"
+alias list-curves="python wb.py --list_curves"
+
+alias list-bin-grid="python ws.py --list_bin_grid"
+alias list-trace-data="python ws.py --list_trace_data"
+alias list-fault="python ws.py --list_fault"
+alias list-horizon="python ws.py --list_horizon"
+alias list-seismic="python ws.py --list_all"
+
+alias export-welllog-dataset="python wb.py --export --origin"
+
+alias export-seismic="python ws.py --export"
+
+alias delete-welllog-dataset="python wb.py --delete"
+alias delete-wellbore="python -m wi_pyosdu.storage --delete"
+
+alias delete-seismic="python ws.py --delete"
+
+alias ingest-welllog="python wb.py --ingest"
+
+alias ingest-seismic="python ws.py --ingest"
