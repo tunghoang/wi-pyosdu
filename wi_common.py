@@ -1,5 +1,11 @@
 from prettytable import PrettyTable
 import json
+from hdfs import Config
+
+from os import path
+
+DATALAKE_BASE = '/raw_zone/test2'
+LOCAL_BASE = 'temp'
 
 def flatten_data(y):
     out = {}
@@ -40,3 +46,9 @@ def printJson(data, filteredFields=None):
 def output_format(data, outputFn=prettyTable, filteredFields=[]):
     outputFn(data, filteredFields)
 
+def hdfs_download(file_path):
+    client = Config().get_client('dev')
+    source_path = path.join(DATALAKE_BASE, file_path)
+    dest_path = path.join(LOCAL_BASE, path.basename(file_path))
+    client.download(source_path, LOCAL_BASE, overwrite=True)
+    return dest_path

@@ -8,11 +8,18 @@ def indexer_info():
   resp = httpGet(f'{__INDEXER_BASE_URL}/info', headers=auth_headers())
   print(resp.content.decode('utf-8'))
 
-def indexer_reindex_kind(kind, cursor):
+#def indexer_reindex_kind(kind, cursor):
+#  #headers = auth_admin_headers()
+#  headers = auth_headers()
+#  resp = httpPostJson(f'{__INDEXER_BASE_URL}/reindex', json={
+#    'kind': kind,
+#    'cursor': cursor
+#  },headers=headers)
+#  print(resp.content.decode('utf-8'))
+def indexer_reindex_kind(kind):
   #headers = auth_admin_headers()
   headers = auth_headers()
   resp = httpPostJson(f'{__INDEXER_BASE_URL}/reindex', json={
-    'kind': kind,
-    'cursor': cursor
+    'kind': kind
   },headers=headers)
   print(resp.content.decode('utf-8'))

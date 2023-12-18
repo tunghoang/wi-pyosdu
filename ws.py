@@ -10,6 +10,7 @@ from wi_pyosdu.models.SeismicFault import SeismicFault
 import json
 import re
 import argparse
+import time
 from os import path
 
 from zipfile import ZipFile
@@ -73,6 +74,7 @@ def export_wpc(wpc_id, outdir, unzip=False):
             __unzipFile(path.join(outdir, filename), outdir)
 
 def ingest_bin_grid(input_path, filename, bin_grid_id):
+    print(input_path)
     result = search_query(
         'osdu:wks:dataset--File.Generic:*', 
         f'data.DatasetProperties.FileSourceInfo.Name:"{filename}"', 
@@ -81,7 +83,7 @@ def ingest_bin_grid(input_path, filename, bin_grid_id):
 
     ori_file_id = None
     if result['totalCount'] == 0:
-        ori_file_id = file_ingest_file(filename, args.path)
+        ori_file_id = file_ingest_file(filename, input_path)
     else:
         ori_file_id = result['results'][0]['id']
 
@@ -108,7 +110,7 @@ def ingest_trace_data(input_path, filename, bin_grid_id, trace_data_id):
 
     ori_file_id = None
     if result['totalCount'] == 0:
-        ori_file_id = file_ingest_file(filename, args.path)
+        ori_file_id = file_ingest_file(filename, input_path)
     else:
         ori_file_id = result['results'][0]['id']
 
@@ -133,7 +135,7 @@ def ingest_horizon(input_path, filename, bin_grid_id, horizon_id):
 
     ori_file_id = None
     if result['totalCount'] == 0:
-        ori_file_id = file_ingest_file(filename, args.path)
+        ori_file_id = file_ingest_file(filename, input_path)
     else:
         ori_file_id = result['results'][0]['id']
 
@@ -159,7 +161,7 @@ def ingest_fault(input_path, filename, bin_grid_id, fault_id):
 
     ori_file_id = None
     if result['totalCount'] == 0:
-        ori_file_id = file_ingest_file(filename, args.path)
+        ori_file_id = file_ingest_file(filename, input_path)
     else:
         ori_file_id = result['results'][0]['id']
 
@@ -224,19 +226,20 @@ def list_all(bin_grid_id):
     output_format(result['results'])
 
 if args.ingest and args.path:
+    input_path = hdfs_download(args.path)
     filename, _ = path.splitext(path.basename(args.path))
     tokens = filename.split('_')
 
     if len(tokens) == 3:
-        ingest_bin_grid(args.path, path.basename(args.path), tokens[2])
+        ingest_bin_grid(input_path, path.basename(args.path), tokens[2])
     elif len(tokens) == 4:
-        ingest_trace_data(args.path, path.basename(args.path), tokens[2], tokens[3])
+        ingest_trace_data(input_path, path.basename(args.path), tokens[2], tokens[3])
     elif len(tokens) == 5:
         if tokens[4] == 'Horizon':
-            ingest_horizon(args.path, path.basename(args.path), tokens[2], tokens[3])
+            ingest_horizon(input_path, path.basename(args.path), tokens[2], tokens[3])
         elif tokens[4] == 'Fault':
-            ingest_fault(args.path, path.basename(args.path), tokens[2], tokens[3])
-
+            ingest_fault(input_path, path.basename(args.path), tokens[2], tokens[3])
+    time.sleep(15)
 elif args.list_bin_grid:
     list_bin_grid()
 

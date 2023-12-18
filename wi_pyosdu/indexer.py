@@ -14,5 +14,5 @@ args = parser.parse_args()
 
 if args.info:
   indexer_info()
-elif args.reindex and args.kind and args.cursor:
-  indexer_reindex_kind(args.kind, args.cursor)
+elif args.reindex and args.kind:
+  indexer_reindex_kind(args.kind)

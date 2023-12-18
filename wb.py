@@ -169,9 +169,11 @@ elif args.convert and args.path and args.well:
     print(convert_las_to_record(args.path, wellbore_id=__get_wellbore_id(args.well), welllog_id=__get_welllog_id(args.dataset), config_path='config.json'))
 
 elif args.ingest and args.path:
+    input_path = hdfs_download(args.path)
+
     print(f'LAS path ingest: {args.path} {args.well} {args.dataset}')
     if args.well and args.dataset:
-        ingest(args.path, wellbore_id=__get_wellbore_id(args.well), welllog_id=__get_welllog_id(args.dataset))
+        ingest(input_path, wellbore_id=__get_wellbore_id(args.well), welllog_id=__get_welllog_id(args.dataset))
     elif args.well is None and args.dataset is None:
         filename, _ = path.splitext(path.basename(args.path))
         _, _, _, well, dataset, _ = filename.split("_")
@@ -179,7 +181,7 @@ elif args.ingest and args.path:
         dataset = re.sub(r"\s+", "-", dataset)
         wellbore_id = __get_wellbore_id(well)
         welllog_id = __get_welllog_id(f"{well}.{dataset}")
-        ingest(args.path, wellbore_id=wellbore_id, welllog_id=welllog_id)
+        ingest(input_path, wellbore_id=wellbore_id, welllog_id=welllog_id)
 
 elif args.get:
     if args.well:
