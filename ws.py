@@ -256,7 +256,7 @@ elif args.delete and args.bin_grid_id:
     delete_wpc(__get_bin_grid_id(args.bin_grid_id))
 
 elif args.delete and args.trace_data_id:
-    delete_wpc(__get_horizon_id(args.trace_data_id))
+    delete_wpc(__get_trace_data_id(args.trace_data_id))
 
 elif args.delete and args.horizon_id:
     delete_wpc(__get_horizon_id(args.horizon_id))
