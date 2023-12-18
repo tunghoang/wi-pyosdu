@@ -148,6 +148,9 @@ def wbd_get_welllog(welllog_id):
 
 def wbd_list_welllogs_of_wellbore(wellbore_id):
     result = search_query('osdu:wks:work-product-component--WellLog:*', f'data.WellboreID: "{wellbore_id}:"', returnedFields=['id'])
+    if result['totalCount'] == 0:
+        print("No dataset found")
+        return
     output_format(result['results'])
 
 def wbd_list_curves_of_welllog(welllog_id):
