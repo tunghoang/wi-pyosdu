@@ -12,13 +12,15 @@ from wbdutil.service.well_service import WellBoreService, WellLogService, DataLo
 from wi_pyosdu.client.Token import access_token
 from wi_pyosdu.client.Search import *
 from wi_pyosdu.client.WBD import *
-
-from prettytable import PrettyTable
+from wi_pyosdu.client.File import *
 
 import json
 import re
 import argparse
 from os import path
+
+from wi_common import *
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--print', action='store_true')
 parser.add_argument('--convert', action='store_true')
@@ -31,6 +33,10 @@ parser.add_argument('--list_wells', action="store_true")
 parser.add_argument('--list_datasets', action="store_true")
 parser.add_argument('--list_curves', action="store_true")
 parser.add_argument('--delete', action='store_true')
+parser.add_argument('--export', action='store_true')
+parser.add_argument('--curves')
+parser.add_argument('--out_file')
+parser.add_argument('--origin', action='store_true')
 args = parser.parse_args()
 
 logger = get_logger(__name__)
@@ -43,44 +49,6 @@ client = OsduClient(config, token)
 wlSvc = WellLogService(client)
 wbSvc = WellBoreService(client, wlSvc)
 
-def flatten_data(y):
-    out = {}
-
-    def flatten(x, name=''):
-        if type(x) is dict:
-            for a in x:
-                flatten(x[a], name + a + '.')
-        elif type(x) is list:
-            i = 0
-            for a in x:
-                flatten(a, name + str(i) + '.')
-                i += 1
-        else:
-            out[name[:-1]] = x
-
-    flatten(y)
-    return out
-
-def __prettyTable(alist, filteredFields=None):
-    table = PrettyTable()
-    if filteredFields:
-        table.field_names = list(filter(lambda x: x in filteredFields, flatten_data(alist[0]).keys()))
-    else:
-        table.field_names = flatten_data(alist[0]).keys()
-    for row in alist:
-        frow = flatten_data(row)
-        if filteredFields:
-            items = list(filter(lambda item: item[0] in filteredFields, frow.items()))
-            table.add_row([v for _,v in items])
-        else:
-            table.add_row([v for _,v in frow.items()])
-    print(table)
-
-def __printJson(data, filteredFields=None):
-    print(json.dumps(data))
-
-def __format(data, outputFn=__prettyTable, filteredFields=[]):
-    outputFn(data, filteredFields)
 
 def __get_wellbore_id(well):
     return f"osdu:master-data--Wellbore:{well}" if well else None
@@ -142,10 +110,15 @@ def convert_las_to_record(input_path, wellbore_id=None, welllog_id=None, config_
         })
     return results
 
+def __upload_file(input_path):
+    filename = path.basename(input_path)
+    return file_ingest_file(filename, input_path)
+
 def ingest(input_path, wellbore_id=None, welllog_id=None):
     print("=====", input_path)
     print("--", wellbore_id)
     print('--', welllog_id)
+    ori_file_id = __upload_file(input_path)
     results = convert_las_to_record(input_path, wellbore_id=wellbore_id, welllog_id=welllog_id, config_path=config_path)
     for item in results:
         wellbore_record = item['wellbore']
@@ -156,8 +129,11 @@ def ingest(input_path, wellbore_id=None, welllog_id=None):
             client.create_wellbore(wellbore_record)
         
         welllog_record = wlSvc.recognize_log_family(item['welllog'], config.data_partition_id)
+        welllog_record.data['Datasets'] = [f'{ori_file_id}:']
         welllog_ids = client.post_welllog(welllog_record)
         welllog_id = welllog_ids[0] if welllog_ids is not None and len(welllog_ids) > 0 else None
+        if welllog_id is None:
+            raise Exception('Cannot create WellLog record')
 
         welllog_record = client.get_welllog_record(welllog_id)
         print(welllog_record.get_raw_data())
@@ -172,12 +148,12 @@ def wbd_get_welllog(welllog_id):
 
 def wbd_list_welllogs_of_wellbore(wellbore_id):
     result = search_query('osdu:wks:work-product-component--WellLog:*', f'data.WellboreID: "{wellbore_id}:"', returnedFields=['id'])
-    __format(result['results'])
+    output_format(result['results'])
 
 def wbd_list_curves_of_welllog(welllog_id):
     result = search_query('osdu:wks:work-product-component--WellLog:*', f'id: "{welllog_id}"', returnedFields=['data.Curves'])
     if result['totalCount'] > 0:
-        __format(result['results'][0]['data']['Curves'], filteredFields=['CurveID', 'LogCurveFamilyID', 'CurveUnit'])
+        output_format(result['results'][0]['data']['Curves'], filteredFields=['CurveID', 'LogCurveFamilyID', 'CurveUnit'])
     else:
         print("No curves exist")
 
@@ -208,10 +184,20 @@ elif args.get:
     elif args.dataset:
         print(json.dumps(wbd_get_welllog(__get_welllog_id(args.dataset))))
 elif args.list_wells:
-    __format(search_kind("osdu:wks:master-data--Wellbore:*", returnedFields=['id', 'data.FacilityName'])['results'])
+    output_format(search_kind("osdu:wks:master-data--Wellbore:*", returnedFields=['id', 'data.FacilityName'])['results'])
 elif args.list_datasets and args.well:
     wbd_list_welllogs_of_wellbore(__get_wellbore_id(args.well))
 elif args.list_curves and args.dataset:
     wbd_list_curves_of_welllog(__get_welllog_id(args.dataset))
 elif args.delete and args.dataset:
     wbd_delete_welllog(__get_welllog_id(args.dataset))
+elif args.export and args.dataset and args.out_file:
+    if args.origin:
+        welllog = wbd_get_welllog(__get_welllog_id(args.dataset))
+        origin_file_id = welllog['data']['Datasets'][0][:-1]
+        file_download_file(origin_file_id, args.out_file)
+    else:
+        curves = None if args.curves is None else args.curves.split(',')
+        las_file = wlSvc.download_and_construct_las(config, __get_welllog_id(args.dataset), curves)
+        with open(args.out_file, 'w') as f:
+            las_file.write(f, version=2)
