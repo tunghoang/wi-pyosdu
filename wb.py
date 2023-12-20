@@ -189,7 +189,11 @@ elif args.get:
     elif args.dataset:
         print(json.dumps(wbd_get_welllog(__get_welllog_id(args.dataset))))
 elif args.list_wells:
-    output_format(search_kind("osdu:wks:master-data--Wellbore:*", returnedFields=['id', 'data.FacilityName'])['results'])
+    result = search_kind("osdu:wks:master-data--Wellbore:*", returnedFields=['id', 'data.FacilityName'])
+    if result['totalCount'] == 0:
+        print('No wells found')
+        exit()
+    output_format(result['results'])
 elif args.list_datasets and args.well:
     wbd_list_welllogs_of_wellbore(__get_wellbore_id(args.well))
 elif args.list_curves and args.dataset:

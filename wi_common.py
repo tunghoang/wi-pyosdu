@@ -4,7 +4,8 @@ from hdfs import Config
 
 from os import path
 
-DATALAKE_BASE = '/raw_zone/test2'
+#DATALAKE_BASE = '/raw_zone/test2'
+DATALAKE_BASE = '/raw_zone/demo_pvn_19122023'
 LOCAL_BASE = 'temp'
 
 def flatten_data(y):
