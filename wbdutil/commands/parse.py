@@ -86,7 +86,7 @@ def split_files_version_3_with_multi_ds(input_path: str):
           if str_match:
             # Get the current file for current dataset
             filename = str_match.group(1)
-            cur_file = f"{Path(input_path).stem}_{filename}.las"
+            cur_file = f"{os.path.dirname(input_path) or '.'}/{Path(input_path).stem}_{filename}.las"
             files.append(cur_file)
             # Add first dataset parameter section to head
             head.append("~Parameter\n")
@@ -104,7 +104,7 @@ def split_files_version_3_with_multi_ds(input_path: str):
             _f.writelines(body)
           # Then get the next file for next dataset
           filename = str_match.group(1)
-          cur_file = f"{Path(input_path).stem}_{filename}.las"
+          cur_file = f"{os.path.dirname(input_path) or '.'}/{Path(input_path).stem}_{filename}.las"
           files.append(cur_file)
           # Reset the body for current dataset
           body = []
