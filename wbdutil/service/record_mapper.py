@@ -197,7 +197,7 @@ class LasToRecordMapper:
 
         return Record(mapper.remap_data_with_kind(self.las))
 
-    def map_to_well_log_record(self, wellbore_id: str, welllog_id: str) -> Record:
+    def map_to_well_log_record(self, wellbore_id: str, welllog_id: str = None) -> Record:
         mapper = PropertyMapper(
             DictionaryMappingLoader(self.config.welllog_mapping or self._DEFAULT_WELLLOG_MAPPING),
             self.config,
